@@ -28,9 +28,10 @@ def weights_init(m):
         m.bias.data.fill_(0)
 
 class VAE_CPPN(nn.Module):
-    def __init__(self, latent_size=100, output_dim=10):
+    def __init__(self, latent_size=100, ensemble_dim=10, output_dim=10):
         super().__init__()
         self.latent_size = latent_size
+        self.ensemble_dim = ensemble_dim
         self.encode = nn.Sequential(
             nn.Conv1d(1, 64, 4, 2, 1),
             nn.ReLU(True),
@@ -44,10 +45,10 @@ class VAE_CPPN(nn.Module):
         )
         self.decode = nn.Sequential(
             nn.Linear(latent_size * 2, 1024),
-            nn.Tanh(),
+            nn.ReLU(True),
             nn.Linear(1024, 1024),
-            nn.Tanh(),
-            nn.Linear(1024, 1),
+            nn.ReLU(True),
+            nn.Linear(1024, ensemble_dim),
             nn.Tanh(),
         )
         self.apply(weights_init)
@@ -59,16 +60,15 @@ class VAE_CPPN(nn.Module):
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
         h = mu + eps * std
-        z = torch.zeros(h.size(0), x.size(2), self.latent_size * 2)
-        device = next(self.parameters()).device
-        z = z.to(device)
-        z[:, :, 0:self.latent_size] = h.view(h.size(0), 1, h.size(1))
         t = torch.linspace(-1, 1, x.size(2))
+        l = h.view(h.size(0), 1, h.size(1)).expand(h.size(0), x.size(2), h.size(1))
         t = t.view(1, -1, 1)
-        z[:, :, self.latent_size:] = t
+        t = t.expand(h.size(0), t.size(1), h.size(1))
+        z = torch.cat((l, t), dim=2)
         z_ = z.view(-1, self.latent_size * 2) 
         xrec = self.decode(z_)
-        xrec = xrec.view(z.size(0), 1, z.size(1))
+        xrec = xrec.view(z.size(0), self.ensemble_dim, z.size(1))
+        xrec = xrec.mean(dim=1, keepdim=True)
         return xrec, mu, logvar
 
     def loss_function(self, x, xrec, mu, logvar):
@@ -81,7 +81,7 @@ class VAE_CPPN(nn.Module):
 
 
 class VAE(nn.Module):
-    def __init__(self, latent_size=100, output_dim=10):
+    def __init__(self, latent_size=100, output_dim=10, ensemble_dim=None):
         super().__init__()
         self.latent_size = latent_size
         self.encode = nn.Sequential(

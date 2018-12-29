@@ -22,9 +22,10 @@ def train(
         max_len=500,
         log_interval=50,
         latent_size=10,
+        ensemble_dim=10,
         cuda=False):
     mod = getattr(model, model_name)
-    vae = mod(latent_size=latent_size, output_dim=max_len)
+    vae = mod(latent_size=latent_size, output_dim=max_len, ensemble_dim=ensemble_dim)
     if cuda:
         vae = vae.cuda()
     optimizer = optim.Adam(

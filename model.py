@@ -89,6 +89,8 @@ class VAE(nn.Module):
             nn.ReLU(True),
             nn.Conv1d(64, 128, 4, 2, 1),
             nn.ReLU(True),
+            nn.Conv1d(128, 128, 4, 2, 1),
+            nn.ReLU(True),
             nn.Conv1d(128, latent_size * 2, 4, 2, 1),
             nn.ReLU(True),
             nn.AdaptiveAvgPool1d(1),

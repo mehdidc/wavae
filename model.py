@@ -61,6 +61,8 @@ class VAE_CPPN(nn.Module):
         eps = torch.randn_like(std)
         h = mu + eps * std
         t = torch.linspace(-1, 1, x.size(2))
+        device = next(self.parameters()).device
+        t = t.to(device)
         l = h.view(h.size(0), 1, h.size(1)).expand(h.size(0), x.size(2), h.size(1))
         t = t.view(1, -1, 1)
         t = t.expand(h.size(0), t.size(1), h.size(1))

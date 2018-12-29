@@ -6,7 +6,7 @@ import torch
 from torch import optim
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from model import VAE, VAE_CPPN
+import model
 from transforms import Scale, Compose, PadTrim
 from data import Dataset
 from clize import run
@@ -14,7 +14,8 @@ def train(
         *,
         data_folder='data',
         nb=None,
-        lr=1e-3, 
+        lr=1e-3,
+        model_name='VAE_CPPN',
         batch_size=32, 
         epochs=1000,
         input_dim=1,
@@ -22,7 +23,8 @@ def train(
         log_interval=50,
         latent_size=10,
         cuda=False):
-    vae = VAE_CPPN(latent_size=latent_size, output_dim=max_len)
+    mod = getattr(model, model_name)
+    vae = mod(latent_size=latent_size, output_dim=max_len)
     if cuda:
         vae = vae.cuda()
     optimizer = optim.Adam(

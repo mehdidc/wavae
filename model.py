@@ -49,7 +49,6 @@ class VAE_CPPN(nn.Module):
             nn.Tanh(),
             nn.Linear(1024, ensemble_dim),
             nn.LayerNorm(ensemble_dim),
-            nn.Tanh(),
         )
         self.apply(weights_init)
 
@@ -70,7 +69,7 @@ class VAE_CPPN(nn.Module):
         z_ = z.view(-1, self.latent_size * 2) 
         xrec = self.decode(z_)
         xrec = xrec.view(z.size(0), self.ensemble_dim, z.size(1))
-        xrec, _ = xrec.max(dim=1, keepdim=True)
+        xrec = xrec.mean(dim=1, keepdim=True)
         return xrec, mu, logvar
 
     def loss_function(self, x, xrec, mu, logvar):

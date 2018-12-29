@@ -1,6 +1,6 @@
 from clize import run
 from torch.nn import init
-from torch.nn.init import xavier_uniform
+from torch.nn.init import xavier_uniform_
 import torch
 import time
 import os
@@ -24,7 +24,7 @@ def weights_init(m):
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
     elif classname == 'Linear':
-        xavier_uniform(m.weight.data)
+        xavier_uniform_(m.weight.data)
         m.bias.data.fill_(0)
 
 class VAE_CPPN(nn.Module):
@@ -36,16 +36,18 @@ class VAE_CPPN(nn.Module):
             nn.ReLU(True),
             nn.Conv1d(64, 128, 4, 2, 1),
             nn.ReLU(True),
+            nn.Conv1d(128, 128, 4, 2, 1),
+            nn.ReLU(True),
             nn.Conv1d(128, latent_size * 2, 4, 2, 1),
             nn.ReLU(True),
             nn.AdaptiveAvgPool1d(1),
         )
         self.decode = nn.Sequential(
-            nn.Linear(latent_size * 2, 256),
+            nn.Linear(latent_size * 2, 1024),
             nn.Tanh(),
-            nn.Linear(256, 128),
+            nn.Linear(1024, 1024),
             nn.Tanh(),
-            nn.Linear(128, 1),
+            nn.Linear(1024, 1),
             nn.Tanh(),
         )
         self.apply(weights_init)

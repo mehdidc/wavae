@@ -48,7 +48,7 @@ class VAE_CPPN(nn.Module):
             nn.LayerNorm(1024),
             nn.Tanh(),
             nn.Linear(1024, ensemble_dim),
-            nn.LayerNorm(ensemble_dim),
+            #nn.LayerNorm(ensemble_dim),
         )
         self.apply(weights_init)
 

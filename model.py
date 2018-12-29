@@ -45,8 +45,10 @@ class VAE_CPPN(nn.Module):
         )
         self.decode = nn.Sequential(
             nn.Linear(latent_size * 2, 1024),
-            nn.ReLU(True),
+            nn.LayerNorm(1024),
+            nn.Tanh(),
             nn.Linear(1024, ensemble_dim),
+            nn.LayerNorm(ensemble_dim),
             nn.Tanh(),
         )
         self.apply(weights_init)

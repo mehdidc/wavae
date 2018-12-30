@@ -77,7 +77,7 @@ class VAE_CPPN(nn.Module):
         xrec = self.decode(z_)
         xrec = xrec.view(z.size(0), self.ensemble_dim, z.size(1))
         xrec = xrec.mean(dim=1, keepdim=True)
-        xrec = self.enhance(xrec)
+        #xrec = self.enhance(xrec)
         return xrec, mu, logvar
 
     def loss_function(self, x, xrec, mu, logvar):

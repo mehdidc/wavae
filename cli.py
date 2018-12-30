@@ -19,13 +19,19 @@ def train(
         batch_size=32, 
         epochs=1000,
         input_dim=1,
+        depth=8,
         max_len=500,
         log_interval=50,
         latent_size=10,
         ensemble_dim=1,
         cuda=False):
     mod = getattr(model, model_name)
-    vae = mod(latent_size=latent_size, output_dim=max_len, ensemble_dim=ensemble_dim)
+    vae = mod(
+        latent_size=latent_size, 
+        output_dim=max_len, 
+        ensemble_dim=ensemble_dim,
+        depth=depth,
+    )
     if cuda:
         vae = vae.cuda()
     optimizer = optim.Adam(

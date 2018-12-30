@@ -27,8 +27,26 @@ def weights_init(m):
         xavier_uniform_(m.weight.data)
         m.bias.data.fill_(0)
 
+class Block(nn.Module):
+
+    def __init__(self, n_features_in, n_features_out):
+        super().__init__()
+        self.n_features_in = n_features_in
+        self.n_features_out = n_features_out
+        self.lin = nn.Linear(n_features_in, n_features_out)
+        self.norm = nn.LayerNorm(n_features_out)
+        self.apply(weights_init)
+
+    def forward(self, x):
+        o = x
+        x = self.lin(x)
+        x = self.norm(x)
+        x = nn.ReLU(True)(x)
+        x = x + o
+        return x
+
 class VAE_CPPN(nn.Module):
-    def __init__(self, latent_size=100, ensemble_dim=10, output_dim=10):
+    def __init__(self, depth=8, latent_size=100, ensemble_dim=10, output_dim=10):
         super().__init__()
         self.latent_size = latent_size
         self.ensemble_dim = ensemble_dim
@@ -43,26 +61,13 @@ class VAE_CPPN(nn.Module):
             nn.ReLU(True),
             nn.AdaptiveAvgPool1d(1),
         )
-        self.decode = nn.Sequential(
+
+        layers = [
             nn.Linear(latent_size * 2, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 64),
-            nn.ReLU(True),
-            
-            nn.Linear(64, ensemble_dim),
-    
-            nn.Tanh(),
-        )
+            nn.ReLU(True)
+        ] + [Block(64, 64) for _ in range(depth)] + [nn.Linear(64, ensemble_dim), nn.Tanh()]
+
+        self.decode = nn.Sequential(*layers)
         self.apply(weights_init)
 
     def forward(self, x):

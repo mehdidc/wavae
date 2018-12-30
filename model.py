@@ -71,7 +71,7 @@ class VAE_CPPN(nn.Module):
             nn.Linear(64, 64),
             nn.LayerNorm(64),
             nn.Linear(64, ensemble_dim),
-            Sin(),
+            #Sin(),
             #nn.Tanh(),
         ]
         self.decode = nn.Sequential(*layers)

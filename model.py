@@ -41,9 +41,7 @@ class Block(nn.Module):
         o = x
         x = self.lin(x)
         x = self.norm(x)
-        #x = nn.Softplus()(x) + o
-        #x = nn.Tanh()(x) + o
-        x = Sin()(x) + o
+        x = nn.Tanh()(x) + o
         return x
 
 class VAE_CPPN(nn.Module):
@@ -65,12 +63,12 @@ class VAE_CPPN(nn.Module):
 
         layers = [
             nn.Linear(latent_size * 2, 64),
-            nn.ReLU(True)
+            nn.LayerNorm(64),
+            nn.Tanh(),
         ]
         
         layers += [Block(64, 64) for _ in range(depth)] 
         layers += [
-            nn.Linear(64, 64),
             nn.LayerNorm(64),
             nn.Linear(64, ensemble_dim),
             #nn.Tanh(),

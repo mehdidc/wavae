@@ -44,17 +44,23 @@ class VAE_CPPN(nn.Module):
             nn.AdaptiveAvgPool1d(1),
         )
         self.decode = nn.Sequential(
-            nn.Linear(latent_size * 2, 1024),
-            nn.Tanh(),
-            nn.Linear(1024, ensemble_dim),
-            nn.Tanh(),
-        )
-        self.enhance = nn.Sequential(
-            nn.Conv1d(1, 64, 3, 1, 1),
+            nn.Linear(latent_size * 2, 64),
             nn.ReLU(True),
-            nn.Conv1d(64, 128, 3, 1, 1),
+            nn.Linear(64, 64),
             nn.ReLU(True),
-            nn.Conv1d(128, 1, 3, 1, 1),
+            nn.Linear(64, 64),
+            nn.ReLU(True),
+            nn.Linear(64, 64),
+            nn.ReLU(True),
+            nn.Linear(64, 64),
+            nn.ReLU(True),
+            nn.Linear(64, 64),
+            nn.ReLU(True),
+            nn.Linear(64, 64),
+            nn.ReLU(True),
+            
+            nn.Linear(64, ensemble_dim),
+    
             nn.Tanh(),
         )
         self.apply(weights_init)

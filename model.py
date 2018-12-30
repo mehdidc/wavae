@@ -41,7 +41,8 @@ class Block(nn.Module):
         o = x
         x = self.lin(x)
         x = self.norm(x)
-        x = nn.Softplus()(x) + o
+        #x = nn.Softplus()(x) + o
+        x = nn.Tanh()(x) + o
         return x
 
 class VAE_CPPN(nn.Module):
@@ -72,7 +73,7 @@ class VAE_CPPN(nn.Module):
             nn.LayerNorm(64),
             nn.Linear(64, ensemble_dim),
             #Sin(),
-            #nn.Tanh(),
+            nn.Tanh(),
         ]
         self.decode = nn.Sequential(*layers)
         self.apply(weights_init)

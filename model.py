@@ -27,6 +27,14 @@ def weights_init(m):
         xavier_uniform_(m.weight.data)
         m.bias.data.fill_(0)
 
+class MinMaxNorm(nn.Module):
+
+    def forward(self, x):
+        x = x - x.min(dim=1, keepdim=True)[0]
+        x = x / (x.max(dim=1, keepdim=True)[0] + 1e-7)
+        x = x * 2 - 1
+        return x
+
 class Block(nn.Module):
 
     def __init__(self, n_features_in, n_features_out):
@@ -71,8 +79,7 @@ class VAE_CPPN(nn.Module):
         layers += [
             nn.LayerNorm(64),
             nn.Linear(64, ensemble_dim),
-            #nn.Tanh(),
-            Sin(),
+            nn.Tanh(),
         ]
         self.decode = nn.Sequential(*layers)
         self.apply(weights_init)
@@ -85,6 +92,7 @@ class VAE_CPPN(nn.Module):
         eps = torch.randn_like(std)
         h = mu# + eps * std
         t = torch.linspace(-1, 1, x.size(2))
+        t = Sin()(t)
         device = next(self.parameters()).device
         t = t.to(device)
         l = h.view(h.size(0), 1, h.size(1)).expand(h.size(0), x.size(2), h.size(1))

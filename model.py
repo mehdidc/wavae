@@ -45,10 +45,17 @@ class VAE_CPPN(nn.Module):
         )
         self.decode = nn.Sequential(
             nn.Linear(latent_size * 2, 1024),
-            nn.LayerNorm(1024),
             nn.Tanh(),
             nn.Linear(1024, ensemble_dim),
-            #nn.LayerNorm(ensemble_dim),
+            nn.Tanh(),
+        )
+        self.enhance = nn.Sequential(
+            nn.Conv1d(1, 64, 3, 1, 1),
+            nn.ReLU(True),
+            nn.Conv1d(64, 128, 3, 1, 1),
+            nn.ReLU(True),
+            nn.Conv1d(128, 1, 3, 1, 1),
+            nn.Tanh(),
         )
         self.apply(weights_init)
 
@@ -70,6 +77,7 @@ class VAE_CPPN(nn.Module):
         xrec = self.decode(z_)
         xrec = xrec.view(z.size(0), self.ensemble_dim, z.size(1))
         xrec = xrec.mean(dim=1, keepdim=True)
+        xrec = self.enhance(xrec)
         return xrec, mu, logvar
 
     def loss_function(self, x, xrec, mu, logvar):

@@ -72,15 +72,13 @@ class VAE_CPPN(nn.Module):
         layers = [
             nn.Linear(latent_size * 2, 64),
             nn.LayerNorm(64),
-            Sin(),
-            #nn.Tanh(),
+            nn.Tanh(),
         ]
         layers += [Block(64, 64) for _ in range(depth)] 
         layers += [
             nn.LayerNorm(64),
             nn.Linear(64, ensemble_dim),
-            Sin(),
-            #nn.Tanh(),
+            nn.Tanh(),
         ]
         self.decode = nn.Sequential(*layers)
         self.apply(weights_init)

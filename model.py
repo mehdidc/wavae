@@ -65,7 +65,7 @@ class VAE_CPPN(nn.Module):
         mu, logvar = h[:, 0:self.latent_size], h[:, self.latent_size:]
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
-        h = mu + eps * std
+        h = mu# + eps * std
         t = torch.linspace(-1, 1, x.size(2))
         device = next(self.parameters()).device
         t = t.to(device)

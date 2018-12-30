@@ -42,7 +42,8 @@ class Block(nn.Module):
         x = self.lin(x)
         x = self.norm(x)
         #x = nn.Softplus()(x) + o
-        x = nn.Tanh()(x) + o
+        #x = nn.Tanh()(x) + o
+        x = Sin()(x) + o
         return x
 
 class VAE_CPPN(nn.Module):
